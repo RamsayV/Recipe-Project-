@@ -26,6 +26,7 @@ const recipeSchema = new mongoose.Schema({
   title: String,
   ingredients: String,
   instructions: String,
+  image: String,
   date: Date,
 });
 
@@ -58,11 +59,11 @@ app.post("/AddRecipe", async (req, res) => {
     if (!contributor) {
       contributor = new Contributors({
         name: data.contributor,
-        recipes: [{ title: data.title, ingredients: data.ingredients, instructions: data.instructions, date: data.date }],
+        recipes: [{ title: data.title, ingredients: data.ingredients, instructions: data.instructions, image: data.image, date: data.date }],
       });
       await contributor.save();
     } else {
-      contributor.recipes.push({ title: data.title, ingredients: data.ingredients, instructions: data.instructions, date: data.date});
+      contributor.recipes.push({ title: data.title, ingredients: data.ingredients, instructions: data.instructions, image: data.image, date: data.date});
       await contributor.save();
     }
     const recipe = new Recipes({
@@ -147,3 +148,7 @@ app.post("/login", async (req, res) => {
     res.sendStatus(200)
   }
 })
+
+
+//! External API for Recipe Matching !
+
