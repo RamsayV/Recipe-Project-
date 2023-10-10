@@ -23,13 +23,15 @@ const recipeSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Contributors",
   },
+  cuisine: String,
   title: String,
   ingredients: String,
   instructions: String,
   image: String,
   date: Date,
-});
+  user: String
 
+});
 const contributorSchema = new mongoose.Schema({
   name: String,
   recipes: [recipeSchema],
@@ -53,25 +55,30 @@ const Users = mongoose.model("Users", userSchema)
 
 
 app.post("/AddRecipe", async (req, res) => {
+  const email = req.body.email
   try {
     const data = req.body;
     let contributor = await Contributors.findOne({ name: data.contributor });
     if (!contributor) {
       contributor = new Contributors({
         name: data.contributor,
-        recipes: [{ title: data.title, ingredients: data.ingredients, instructions: data.instructions, image: data.image, date: data.date }],
+        recipes: [{ cuisine: data.cuisine,title: data.title, ingredients: data.ingredients, instructions: data.instructions, image: data.image, date: data.date }],
       });
       await contributor.save();
     } else {
-      contributor.recipes.push({ title: data.title, ingredients: data.ingredients, instructions: data.instructions, image: data.image, date: data.date});
+      contributor.recipes.push({cuisine: data.cuisine, title: data.title, ingredients: data.ingredients, instructions: data.instructions, image: data.image, date: data.date});
       await contributor.save();
     }
+    const user = await Users.findOne({userEmail: email})
+    console.log(user);
     const recipe = new Recipes({
       contributor: contributor._id,
+      cuisine: data.cuisine,
       title: data.title,
       ingredients: data.ingredients, 
       instructions: data.instructions,
       date: data.date,
+      user: user.userEmail
     });
     await recipe.save();
     return res.status(200).json(recipe);
@@ -113,7 +120,6 @@ try {
   res.status(500).json({ error: "Internal Server Error" });
 }
 });
-
 
 app.delete("/AllRecipes/:id", async (req, res) => {
   Recipes.deleteOne({"_id": req.params.id})
