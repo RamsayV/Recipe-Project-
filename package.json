@@ -2,7 +2,7 @@
   "name": "recipe_project_backend",
   "version": "1.0.0",
   "description": "Unit 2project backend",
-  "main": "index.js",
+  "main": "serverTwo.js",
   "scripts": {
     "test": "echo \"no tests defined\" && exit 1 "
   },

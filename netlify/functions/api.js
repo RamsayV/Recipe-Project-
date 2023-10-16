@@ -3,13 +3,14 @@ import express, { Router } from "express";
 import "dotenv/config";
 import cors from "cors";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import serverless from "serverless-http";
 
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
-
+app.use(cookieParser());
 
 
 
@@ -51,7 +52,6 @@ const recipeSchema = new mongoose.Schema({
   image: String,
   date: Date,
   user: String,
-  review: [reviewSchema]
 });
 const contributorSchema = new mongoose.Schema({
   name: String,
@@ -83,9 +83,10 @@ const Users = mongoose.model("Users", userSchema)
 const router = Router();
 
 router.post("/AddRecipe", async (req, res) => {
-  const email = req.body.email
+ const email = req.body.email
   try {
     const data = req.body;
+    console.log(req.body);
     let contributor = await Contributors.findOne({ name: data.contributor });
     if (!contributor) {
       contributor = new Contributors({
@@ -106,8 +107,10 @@ router.post("/AddRecipe", async (req, res) => {
       ingredients: data.ingredients,
       instructions: data.instructions,
       date: data.date,
-      user: user.userEmail
+      image: data.image
+      
     });
+    console.log(recipe);
     await recipe.save();
     return res.status(200).json(recipe);
   } catch (err) {
