@@ -3,13 +3,17 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
+import serverless from "serverless-http";
 
 
 const app = express();
 
 app.use(cors());
-
 app.use(bodyParser.json());
+app.use(cookieParser());
+
+export const handler = serverless(app);
 
 mongoose.connect(process.env.RECIPE_DATABASE);
 
