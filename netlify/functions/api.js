@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import express, { Router } from "express";
 import "dotenv/config";
-import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
@@ -15,8 +14,12 @@ app.use(cookieParser());
 
 
 
-mongoose.connect(process.env.RECIPE_DATABASE);
-
+mongoose.connect(process.env.RECIPE_DATABASE, { 
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log("MongoDB connected"))
+.catch(err => console.log("MongoDB connection error:", err));
 
 const reviewSchema = new mongoose.Schema({
   userEmail: {
@@ -247,6 +250,5 @@ router.post("/AllRecipes/:id/AddReview", async (req, res) => {
 //   }
 // });
 
-export const handler = serverless(app);
-
 app.use("/app", router)
+export const handler = serverless(app);
