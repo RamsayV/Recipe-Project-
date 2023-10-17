@@ -21,27 +21,7 @@ const port = process.env.PORT || 4000;
 app.listen(port, () => {
   console.log(`listening on port: ${port}`);
 });
-const reviewSchema = new mongoose.Schema({
-  userEmail: {
-    type: String,
-    required: true
-  },
-  rating: Number,
-  text: String,
-  recipe: {
-    type: String,
-    required: true
-  },
-  name: {
-    type: String,
-    required: true
-  },
-  image: {
-    type: String,
-  }
-}, {
-  timestamps: true
-});
+
 
 const recipeSchema = new mongoose.Schema({
   // contributor: [contributorSchema],
@@ -52,7 +32,7 @@ const recipeSchema = new mongoose.Schema({
   image: String,
   date: Date,
   user: String,
-  review: [reviewSchema]
+  
 });
 const contributorSchema = new mongoose.Schema({
   name: String,
@@ -76,7 +56,6 @@ const userSchema = new mongoose.Schema({
   }
 })
 
-const Reviews = mongoose.model("Reviews", reviewSchema)
 const Recipes = mongoose.model("Recipe", recipeSchema);
 const Contributors = mongoose.model("Contributors", contributorSchema);
 const Users = mongoose.model("Users", userSchema)
@@ -205,46 +184,3 @@ app.post("/login", async (req, res) => {
   }
 })
 
-app.post("/AllRecipes/:id/AddReview", async (req, res) => {
-  try {
-    const data = req.body;
-    const recipeId = req.params.id
-    const review = new Reviews({
-      userEmail: data.email,
-      rating: parseInt(data.rating),
-      text: data.text,
-      recipe: recipeId,
-      name: data.name,
-      image: data.image
-    })
-    await review.save();
-    res.sendStatus(200)
-  }
-  catch (err) {
-    console.log("ERROR MESSAGE HERE ->", err.message);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-// app.get('/AllRecipes/:id/Review', async (req, res) => {
-//   const id = req.params.id
-//   console.log('REVIEWS');
-//   try {
-//     const reviews = await Reviews.find({recipe: id});
-//     console.log(reviews);
-//     res.json(reviews);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// });
-
-// app.delete("/AllRecipes/:id/Review", async (req, res) => {
-//   try {
-//     await Reviews.deleteOne({ _id: req.params.id });
-//     res.sendStatus(200);
-//   } catch (error) {
-//     console.error(error);
-//     res.sendStatus(500);
-//   }
-// });
