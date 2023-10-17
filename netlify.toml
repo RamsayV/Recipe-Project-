@@ -1,5 +1,5 @@
 [functions]
-  external_node_modules = ["express", "cookie parser"]
+  external_node_modules = ["express", "cookie-parser"]
   node_bundler = "esbuild"
 [[redirects]]
   force = true
