@@ -1,8 +1,12 @@
 [functions]
-  external_node_modules = ["express", "cookie-parser"]
+  external_node_modules = ["express"]
   node_bundler = "esbuild"
 [[redirects]]
   force = true
   from = "/app/*"
   status = 200
   to = "/.netlify/functions/api/:splat"
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
