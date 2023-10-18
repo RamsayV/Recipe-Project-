@@ -165,7 +165,7 @@ router.delete("/AllRecipes/:id", async (req, res) => {
 router.put("/AllRecipes/:id", async (req, res) => {
   console.log( req.params); 
   console.log("Request Body:", req.body);
-  Recipes.updateOne({ "_id": req.params.id }, { title: req.body.title, ingredients: req.body.ingredients, instructions: req.body.instructions, date: parseInt(req.body.date) })
+  Recipes.updateOne({ "_id": req.params.id }, { title: req.body.title, ingredients: req.body.ingredients, instructions: req.body.instructions, date: req.body.date })
     .then(() => {
       res.sendStatus(200)
     })
