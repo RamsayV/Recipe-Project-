@@ -3,7 +3,6 @@ import express, { Router } from "express";
 import "dotenv/config";
 import cors from "cors";
 import bodyParser from "body-parser";
-
 import serverless from "serverless-http";
 
 const app = express();
@@ -87,7 +86,8 @@ router.post("/AddRecipe", async (req, res) => {
       ingredients: data.ingredients,
       instructions: data.instructions,
       date: data.date,
-      image: data.image
+      image: data.image,
+      user: email
       
     });
     console.log(recipe);
