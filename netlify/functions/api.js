@@ -21,27 +21,24 @@ mongoose.connect(process.env.RECIPE_DATABASE, {
 .catch(err => console.log("MongoDB connection error:", err));
 
 
-
 const recipeSchema = new mongoose.Schema({
-  // contributor: [contributorSchema],
-  cuisine: String,
-  title: String,
-  ingredients: String,
-  instructions: String,
-  image: String,
-  date: Date,
-  user: String,
-});
-const contributorSchema = new mongoose.Schema({
-  name: String,
-  recipes: [{
-    recipe: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Recipes"
-    }
-
-  }],
-});
+  contributor:{
+   type: mongoose.Schema.Types.ObjectId,
+   ref: "Contributors"
+  },
+   cuisine: String,
+   title: String,
+   ingredients: String,
+   instructions: String,
+   image: String,
+   date: Date,
+   user: String,
+   
+ });
+ const contributorSchema = new mongoose.Schema({
+   name: String,
+   recipes: [recipeSchema],
+ });
 
 const userSchema = new mongoose.Schema({
   userEmail: {
@@ -62,22 +59,19 @@ const Users = mongoose.model("Users", userSchema)
 const router = Router();
 
 router.post("/AddRecipe", async (req, res) => {
- const email = req.body.email
+  const email = req.body.email;
   try {
     const data = req.body;
-    console.log(req.body);
+
     let contributor = await Contributors.findOne({ name: data.contributor });
     if (!contributor) {
       contributor = new Contributors({
         name: data.contributor,
-        recipes: [{ cuisine: data.cuisine, title: data.title, ingredients: data.ingredients, instructions: data.instructions, image: data.image, date: data.date }],
+        recipes: [],
       });
       await contributor.save();
-    } else {
-      contributor.recipes.push({ cuisine: data.cuisine, title: data.title, ingredients: data.ingredients, instructions: data.instructions, image: data.image, date: data.date });
-      await contributor.save();
     }
-    const user = await Users.findOne({ userEmail: email })
+    const user = await Users.findOne({ userEmail: email });
     console.log(user);
     const recipe = new Recipes({
       contributor: contributor._id,
@@ -87,11 +81,11 @@ router.post("/AddRecipe", async (req, res) => {
       instructions: data.instructions,
       date: data.date,
       image: data.image,
-      user: email
-      
+      user: email,
     });
-    console.log(recipe);
     await recipe.save();
+    contributor.recipes.push(recipe);
+    await contributor.save();
     return res.status(200).json(recipe);
   } catch (err) {
     console.log("ERROR MESSAGE HERE ->", err.message);
@@ -133,46 +127,48 @@ router.get("/AllRecipes/:id", async (req, res) => {
 });
 
 router.delete("/AllRecipes/:id", async (req, res) => {
+  console.log("Request Params ID:", req.params.id);
   const recipe = await Recipes.findById(req.params.id);
-  Recipes.deleteOne({ "_id": req.params.id })
-  .then(()=>res.sendStatus(200))
-  // const contributor = await Contributors.findById(recipe.contributor);
-  // console.log(recipe.contributor);
-  // console.log(contributor?.recipes?.length)
-  // if (contributor.recipes.length <= 1) {
-  //   Contributors.deleteOne({ "_id": recipe.contributor })
-  //     .then(() => {
-  //       res.sendStatus(200)
-  //     })
-  //     .catch(error => {
-  //       console.log(error);
-  //       res.sendStatus(500)
-  //     })
-
-  // } else if
-  //   (contributor.recipes.length > 1) {
-  //   Recipes.deleteOne({ "_id": req.params.id })
-  //     .then(() => {
-  //       res.sendStatus(200)
-  //     })
-  //     .catch(error => {
-  //       console.log(error);
-  //       res.sendStatus(500)
-  //     })
-  // }
-})
+  console.log(recipe);
+  const contributor = await Contributors.findById(recipe.contributor);
+  console.log(contributor);
+  console.log(req.params.id);
+  console.log(contributor?.recipes?.length);
+  if (contributor?.recipes?.length <= 1) {
+    await Recipes.findByIdAndDelete(req.params.id );
+    await Contributors.deleteOne({ _id: recipe.contributor })
+    .then(() => {
+      res.sendStatus(200);
+    })
+    .catch((error) => {
+      console.log(error);
+      res.sendStatus(500);
+    });
+  } else {
+   await Recipes.findByIdAndDelete(req.params.id )
+    .then(() => {
+      res.sendStatus(200);
+    })
+  }
+});
 
 router.put("/AllRecipes/:id", async (req, res) => {
-  console.log( req.params); 
-  console.log("Request Body:", req.body);
-  Recipes.updateOne({ "_id": req.params.id }, { title: req.body.title, ingredients: req.body.ingredients, instructions: req.body.instructions, date: parseInt(req.body.date) })
+  Recipes.updateOne(
+    { _id: req.params.id },
+    {
+      title: req.body.title,
+      ingredients: req.body.ingredients,
+      instructions: req.body.instructions,
+      date: parseInt(req.body.date),
+    }
+  )
     .then(() => {
-      res.sendStatus(200)
+      res.sendStatus(200);
     })
-    .catch(error => {
-      res.sendStatus(500)
-    })
-})
+    .catch((error) => {
+      res.sendStatus(500);
+    });
+});
 
 router.post("/login", async (req, res) => {
   const now = new Date()
